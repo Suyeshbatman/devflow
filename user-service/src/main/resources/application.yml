@@ -1,0 +1,81 @@
+# ═══════════════════════════════════════════════
+# SERVER CONFIG
+# This service runs on port 8081
+# (API Gateway runs on 8080, routes traffic here)
+# ═══════════════════════════════════════════════
+server:
+  port: 8081
+
+# ═══════════════════════════════════════════════
+# APPLICATION NAME
+# Used for logging and service discovery
+# ═══════════════════════════════════════════════
+spring:
+  application:
+    name: user-service
+
+  # ═════════════════════════════════════════════
+  # DATABASE CONFIG
+  # Points to PostgreSQL running in Docker
+  # We'll start Docker with docker-compose later
+  # ═════════════════════════════════════════════
+  datasource:
+    url: jdbc:postgresql://localhost:5432/devflow_users
+    username: devflow
+    password: devflow123
+    driver-class-name: org.postgresql.Driver
+
+  # ═════════════════════════════════════════════
+  # JPA / HIBERNATE CONFIG
+  # hibernate.ddl-auto: update = Hibernate reads
+  # your @Entity classes and automatically creates
+  # or updates tables in PostgreSQL to match.
+  # In production this would be "validate" instead.
+  # show-sql: true = prints every SQL query to logs
+  # ═════════════════════════════════════════════
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# ═══════════════════════════════════════════════
+# JWT CONFIG
+# secret: the key used to sign tokens
+#         must be at least 256 bits (32 chars)
+#         in production this comes from AWS Secrets Manager
+# expiration: 86400000ms = 24 hours
+# refresh-expiration: 7 days
+# ═══════════════════════════════════════════════
+jwt:
+  secret: devflow-super-secret-key-for-jwt-signing-must-be-long-enough
+  expiration: 86400000
+  refresh-expiration: 604800000
+
+# ═══════════════════════════════════════════════
+# ACTUATOR
+# Exposes health check endpoint
+# API Gateway pings /actuator/health to verify
+# this service is running
+# ═══════════════════════════════════════════════
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# ═══════════════════════════════════════════════
+# LOGGING
+# INFO level for our code, WARN for Spring noise
+# ═══════════════════════════════════════════════
+logging:
+  level:
+    com.devflow: INFO
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG

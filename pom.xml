@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ═══════════════════════════════════════════
+         PARENT: Spring Boot BOM (Bill of Materials)
+         This gives us all Spring Boot managed versions
+         ═══════════════════════════════════════════ -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <!-- ═══════════════════════════════════════════
+         THIS PROJECT'S IDENTITY
+         groupId   = your organization/package namespace
+         artifactId = the project name
+         version   = current version (SNAPSHOT = in development)
+         packaging = pom means this is a parent, not a runnable app
+         ═══════════════════════════════════════════ -->
+    <groupId>com.devflow</groupId>
+    <artifactId>devflow-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>DevFlow Platform - Parent</name>
+
+    <!-- ═══════════════════════════════════════════
+         ALL CHILD MODULES
+         Maven knows these folders are part of this project
+         ═══════════════════════════════════════════ -->
+    <modules>
+        <module>common</module>
+        <module>api-gateway</module>
+        <module>user-service</module>
+        <module>marketplace-service</module>
+        <module>analytics-service</module>
+        <module>ai-service</module>
+        <module>learning-service</module>
+        <module>notification-service</module>
+    </modules>
+
+    <!-- ═══════════════════════════════════════════
+         GLOBAL PROPERTIES
+         Define versions once, use everywhere with ${...}
+         ═══════════════════════════════════════════ -->
+    <properties>
+        <java.version>21</java.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <jwt.version>0.12.6</jwt.version>
+        <lombok.version>1.18.34</lombok.version>
+        <mapstruct.version>1.6.2</mapstruct.version>
+        <testcontainers.version>1.20.1</testcontainers.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- ═══════════════════════════════════════════
+         DEPENDENCY MANAGEMENT
+         Versions declared here, NOT downloaded yet.
+         Child modules pick what they need — no version needed there.
+         ═══════════════════════════════════════════ -->
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Spring Cloud (Gateway, Config, Discovery) -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- JWT: JSON Web Token library -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+
+            <!-- MapStruct: auto-generates DTO <-> Entity mappers -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+            <!-- Testcontainers: spins up real Docker containers in tests -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ═══════════════════════════════════════════
+         COMMON DEPENDENCIES
+         Every single child module gets these automatically
+         ═══════════════════════════════════════════ -->
+    <dependencies>
+
+        <!-- Lombok: eliminates boilerplate (@Getter, @Setter, @Builder etc.) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- JUnit 5: testing framework, every service needs this -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <!-- ═══════════════════════════════════════════
+         BUILD PLUGINS
+         Tools that run during the Maven build process
+         ═══════════════════════════════════════════ -->
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <!-- Spring Boot plugin: packages app as executable .jar -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <!-- Excludes Lombok from final jar (only needed at compile time) -->
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+
+                <!-- Compiler plugin: enables annotation processing for Lombok + MapStruct -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>21</source>
+                        <target>21</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

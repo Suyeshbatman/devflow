@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Points to our parent — inherits all version management -->
+    <parent>
+        <groupId>com.devflow</groupId>
+        <artifactId>devflow-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>user-service</artifactId>
+    <name>DevFlow - User Service</name>
+
+    <dependencies>
+
+        <!-- ── Our own common library ──────────────────────
+             ApiResponse, BaseException, ErrorCode        -->
+        <dependency>
+            <groupId>com.devflow</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- ── Spring Boot Web ─────────────────────────────
+             Gives us @RestController, @GetMapping etc.
+             Also starts embedded Tomcat server on port 8081 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ── Spring Security ─────────────────────────────
+             Authentication + authorization framework
+             We configure it to use JWT instead of sessions -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- ── Spring Data JPA ─────────────────────────────
+             ORM framework — lets us use Java objects instead
+             of writing raw SQL. Hibernate runs underneath   -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- ── Validation ──────────────────────────────────
+             @Valid, @NotNull, @Email, @Size on request DTOs
+             Spring auto-validates incoming request bodies   -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ── PostgreSQL Driver ───────────────────────────
+             JDBC driver so Java can talk to PostgreSQL DB
+             runtime scope = only needed when app is running -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ── JWT Library (3 parts) ───────────────────────
+             jjwt-api    = the interfaces we code against
+             jjwt-impl   = the actual implementation
+             jjwt-jackson = JSON serialization for JWT       -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ── Actuator ────────────────────────────────────
+             Exposes /actuator/health, /actuator/metrics
+             API Gateway uses /actuator/health to check
+             if this service is alive                        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- ── MapStruct ───────────────────────────────────
+             Auto-generates code to convert:
+             RegisterRequest → User (entity)
+             User (entity)   → UserDto (response)           -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <!-- ── Test Dependencies ───────────────────────────
+             H2 = in-memory DB for tests (no real PostgreSQL needed)
+             Testcontainers = spin up real PostgreSQL in Docker for
+             integration tests                               -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Packages user-service as executable .jar -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
