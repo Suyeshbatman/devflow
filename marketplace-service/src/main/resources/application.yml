@@ -1,0 +1,78 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: marketplace-service
+
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5433/devflow_marketplace
+    username: devflow
+    password: devflow123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # ═══════════════════════════════════════════════
+  # GRAPHQL CONFIG
+  # graphiql = a browser-based GraphQL playground
+  # Access at: http://localhost:8082/graphiql
+  # Like Postman but specifically for GraphQL
+  # ═══════════════════════════════════════════════
+  graphql:
+    graphiql:
+      enabled: true
+    path: /graphql
+
+  # ═══════════════════════════════════════════════
+  # KAFKA CONFIG
+  # bootstrap-servers = where Kafka is running
+  # producer = settings for publishing messages
+  #
+  # key-serializer: converts the message key to bytes
+  # value-serializer: converts the message body to bytes
+  # We use JSON serializer so our Java objects are
+  # automatically converted to JSON before being
+  # sent to Kafka
+  # ═══════════════════════════════════════════════
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+  # ═══════════════════════════════════════════════
+  # VIRTUAL THREADS (Java 21+)
+  # Instead of one OS thread per request (expensive),
+  # virtual threads are lightweight — millions can
+  # exist simultaneously with minimal memory overhead
+  # This is one of the biggest Java 21 features
+  # ═══════════════════════════════════════════════
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.devflow: INFO
+    org.springframework.kafka: INFO

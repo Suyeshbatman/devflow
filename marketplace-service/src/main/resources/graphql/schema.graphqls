@@ -1,0 +1,54 @@
+# ═══════════════════════════════════════════════
+# TYPES
+# Define the shape of our data
+# ═══════════════════════════════════════════════
+
+type Product {
+    id: ID!
+    name: String!
+    description: String
+    price: Float!
+    category: String!
+    ownerEmail: String!
+    active: Boolean!
+    purchaseCount: Int!
+    createdAt: String
+}
+
+type Order {
+    id: ID!
+    buyerEmail: String!
+    product: Product!
+    pricePaid: Float!
+    status: String!
+    createdAt: String
+}
+
+# ═══════════════════════════════════════════════
+# QUERIES
+# Read-only operations (like GET in REST)
+# ═══════════════════════════════════════════════
+type Query {
+    # Get all active products
+    products: [Product!]!
+
+    # Get one product by ID
+    product(id: ID!): Product
+
+    # Get products by category
+    productsByCategory(category: String!): [Product!]!
+}
+
+# ═══════════════════════════════════════════════
+# MUTATIONS
+# Write operations (like POST/PUT/DELETE in REST)
+# ═══════════════════════════════════════════════
+type Mutation {
+    # Create a new product
+    createProduct(
+        name: String!
+        description: String
+        price: Float!
+        category: String!
+    ): Product!
+}

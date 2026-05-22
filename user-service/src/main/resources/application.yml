@@ -20,10 +20,15 @@ spring:
   # We'll start Docker with docker-compose later
   # ═════════════════════════════════════════════
   datasource:
-    url: jdbc:postgresql://localhost:5432/devflow_users
+    url: jdbc:postgresql://127.0.0.1:5433/devflow_users
     username: devflow
     password: devflow123
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+      connection-test-query: SELECT 1
+      initialization-fail-timeout: 1
 
   # ═════════════════════════════════════════════
   # JPA / HIBERNATE CONFIG
@@ -39,7 +44,6 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
 # ═══════════════════════════════════════════════
@@ -79,3 +83,7 @@ logging:
     com.devflow: INFO
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
+
+sql:
+  init:
+    mode: never

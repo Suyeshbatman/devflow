@@ -1,0 +1,214 @@
+# docker-compose.yml
+# Defines all infrastructure services DevFlow needs locally
+# Run with: docker-compose up -d
+# Stop with: docker-compose down
+# View logs: docker-compose logs -f
+
+version: '3.8'
+
+services:
+
+  # ═══════════════════════════════════════════════════════
+  # POSTGRESQL — Primary relational database
+  # Used by: user-service, marketplace-service
+  # Port 5432 is the default PostgreSQL port
+  # We create two databases inside one PostgreSQL instance:
+  #   devflow_users      → user-service tables
+  #   devflow_marketplace → marketplace-service tables
+  # ═══════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    # alpine = minimal Linux image, much smaller download
+    container_name: devflow-postgres
+    environment:
+      POSTGRES_USER: devflow
+      POSTGRES_PASSWORD: devflow123
+      POSTGRES_DB: devflow_users
+      # This script runs on first startup to create extra DBs
+      POSTGRES_MULTIPLE_DATABASES: devflow_users,devflow_marketplace
+    ports:
+      - "5433:5432"
+      # format: "host_port:container_port"
+      # 5433:5432 = your machine's port 5433 maps to
+      # container's port 5432
+      # your app connects to localhost:5433
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Named volume = data persists when container restarts
+      # Without this, ALL data is lost on docker-compose down
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      # Any .sql files here run automatically on first startup
+    networks:
+      - devflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      # healthcheck = Docker polls this command every 10s
+      # Other services can depend on postgres being "healthy"
+      # before they start
+
+  # ═══════════════════════════════════════════════════════
+  # MONGODB — Document database
+  # Used by: learning-service (courses, quizzes)
+  # Flexible schema = perfect for course content that
+  # varies in structure
+  # ═══════════════════════════════════════════════════════
+  mongodb:
+    image: mongo:7-jammy
+    container_name: devflow-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: devflow
+      MONGO_INITDB_ROOT_PASSWORD: devflow123
+      MONGO_INITDB_DATABASE: devflow_learning
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - devflow-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  # REDIS — In-memory cache + session store
+  # Used by: analytics-service (caching metrics)
+  #          all services (caching frequent queries)
+  # Redis is single-threaded but extremely fast
+  # Data lives in RAM — microsecond response times
+  # ═══════════════════════════════════════════════════════
+  redis:
+    image: redis:7.2-alpine
+    container_name: devflow-redis
+    command: redis-server --requirepass devflow123
+    # --requirepass = enables authentication
+    # without this Redis is open to anyone on the network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - devflow-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "devflow123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  # ZOOKEEPER — Required by Kafka
+  # Zookeeper manages Kafka's cluster metadata:
+  # which brokers exist, which topics, which partitions
+  # Think of it as Kafka's address book / coordinator
+  # Kafka cannot run without Zookeeper
+  # ═══════════════════════════════════════════════════════
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: devflow-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      # TICK_TIME = heartbeat interval in ms
+      # Used to calculate timeouts between Zookeeper and Kafka
+    ports:
+      - "2181:2181"
+    networks:
+      - devflow-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  # KAFKA — Event streaming platform
+  # Used by: marketplace-service (order events)
+  #          analytics-service (event consumption)
+  #          notification-service (alert events)
+  # Kafka is like a high-throughput message bus:
+  # producers write events, consumers read them
+  # Events are persisted — consumers can replay history
+  # ═══════════════════════════════════════════════════════
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: devflow-kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    # depends_on with condition = Kafka waits until
+    # Zookeeper passes its healthcheck before starting
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Inside Docker network, services talk to each other
+      # by container name (zookeeper) not localhost
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      # Two listeners:
+      # localhost:9092 = for apps running on your machine (our Spring Boot services)
+      # kafka:29092    = for other Docker containers talking to Kafka
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      # Replication factor 1 = no replication (fine for local dev)
+      # In production this would be 3 (3 copies of each partition)
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      # Auto-create topics = Kafka creates a topic automatically
+      # when a producer first writes to it (convenient for dev)
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - devflow-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  # KAFKA UI — Visual dashboard for Kafka
+  # Not required but extremely useful for development
+  # Shows topics, messages, consumer groups visually
+  # Access at: http://localhost:8090
+  # ═══════════════════════════════════════════════════════
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: devflow-kafka-ui
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: devflow-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    ports:
+      - "8090:8080"
+    networks:
+      - devflow-network
+
+# ═══════════════════════════════════════════════════════
+# NAMED VOLUMES
+# Docker manages these — data persists between restarts
+# docker volume ls = see all volumes
+# docker volume rm <name> = delete a volume (wipes data)
+# ═══════════════════════════════════════════════════════
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  kafka_data:
+
+# ═══════════════════════════════════════════════════════
+# NETWORK
+# All containers share this network
+# They can reach each other by container name
+# e.g. kafka connects to zookeeper via "zookeeper:2181"
+# Our Spring Boot apps connect via "localhost:5432" etc.
+# ═══════════════════════════════════════════════════════
+networks:
+  devflow-network:
+    driver: bridge

@@ -1,0 +1,73 @@
+### ═══════════════════════════════════════════
+### STEP 1: Create a course
+### ═══════════════════════════════════════════
+POST http://localhost:8085/api/courses
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "title": "Spring Boot Microservices",
+  "description": "Learn to build production-grade microservices with Spring Boot, Kafka, and Docker",
+  "level": "INTERMEDIATE",
+  "tags": ["java", "spring", "microservices", "kafka"]
+}
+
+### ═══════════════════════════════════════════
+### STEP 2: Publish the course
+### Paste course id from STEP 1
+### ═══════════════════════════════════════════
+POST http://localhost:8085/api/courses/PASTE_COURSE_ID/publish
+X-User-Email: john@devflow.com
+
+### ═══════════════════════════════════════════
+### STEP 3: Get all courses
+### ═══════════════════════════════════════════
+GET http://localhost:8085/api/courses
+
+### ═══════════════════════════════════════════
+### STEP 4: Enroll in the course
+### Use a different email to simulate another user
+### ═══════════════════════════════════════════
+POST http://localhost:8085/api/courses/PASTE_COURSE_ID/enroll
+X-User-Email: jane@devflow.com
+
+### ═══════════════════════════════════════════
+### STEP 5: Generate AI quiz for the course
+### Requires ai-service running on 8084
+### ═══════════════════════════════════════════
+POST http://localhost:8085/api/quizzes/generate
+Content-Type: application/json
+X-User-Email: jane@devflow.com
+
+{
+  "courseId": "PASTE_COURSE_ID",
+  "questionCount": 5,
+  "topic": "Spring Boot basics"
+}
+
+### ═══════════════════════════════════════════
+### STEP 6: Submit quiz answers
+### Paste quiz id from STEP 5
+### ═══════════════════════════════════════════
+POST http://localhost:8085/api/quizzes/PASTE_QUIZ_ID/submit
+Content-Type: application/json
+X-User-Email: jane@devflow.com
+
+{
+  "answers": {
+    "PASTE_QUESTION_ID_1": 0,
+    "PASTE_QUESTION_ID_2": 1
+  }
+}
+
+### ═══════════════════════════════════════════
+### STEP 7: Check progress
+### ═══════════════════════════════════════════
+GET http://localhost:8085/api/courses/PASTE_COURSE_ID/progress
+X-User-Email: jane@devflow.com
+
+### ═══════════════════════════════════════════
+### STEP 8: Get my enrolled courses
+### ═══════════════════════════════════════════
+GET http://localhost:8085/api/courses/my-courses
+X-User-Email: jane@devflow.com

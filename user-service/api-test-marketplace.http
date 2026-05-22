@@ -1,0 +1,75 @@
+### ═══════════════════════════════════════════
+### STEP 1: Login first to get a token
+### (user-service on 8081)
+### ═══════════════════════════════════════════
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@devflow.com",
+  "password": "securepass123"
+}
+
+### ═══════════════════════════════════════════
+### STEP 2: Create a product
+### Paste token from STEP 1 into Authorization
+### ═══════════════════════════════════════════
+POST http://localhost:8082/api/products
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "name": "DevFlow API Toolkit",
+  "description": "A complete toolkit for building REST APIs",
+  "price": 49.99,
+  "category": "API_TOOL"
+}
+
+### ═══════════════════════════════════════════
+### STEP 3: Get all products
+### ═══════════════════════════════════════════
+GET http://localhost:8082/api/products
+
+### ═══════════════════════════════════════════
+### STEP 4: Get product by ID
+### ═══════════════════════════════════════════
+GET http://localhost:8082/api/products/1
+
+### ═══════════════════════════════════════════
+### STEP 5: Place an order
+### ═══════════════════════════════════════════
+POST http://localhost:8082/api/orders
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "productId": 1
+}
+
+### ═══════════════════════════════════════════
+### STEP 6: Get my orders
+### ═══════════════════════════════════════════
+GET http://localhost:8082/api/orders
+X-User-Email: john@devflow.com
+
+### ═══════════════════════════════════════════
+### STEP 7: GraphQL - get all products
+### ═══════════════════════════════════════════
+POST http://localhost:8082/graphql
+Content-Type: application/json
+
+{
+  "query": "{ products { id name price category } }"
+}
+
+### ═══════════════════════════════════════════
+### STEP 8: GraphQL - get specific fields only
+### Notice we ask for LESS fields than REST returns
+### This is the power of GraphQL
+### ═══════════════════════════════════════════
+POST http://localhost:8082/graphql
+Content-Type: application/json
+
+{
+  "query": "{ product(id: 1) { name price } }"
+}

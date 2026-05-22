@@ -1,0 +1,69 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: analytics-service
+
+  # ═══════════════════════════════════════════════
+  # REDIS CONFIG
+  # Redis runs in Docker on port 6379
+  # We use it as a fast in-memory metrics store
+  # Instead of hitting PostgreSQL for every
+  # dashboard refresh, we read from Redis
+  # which responds in microseconds
+  # ═══════════════════════════════════════════════
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: devflow123
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  # ═══════════════════════════════════════════════
+  # KAFKA CONSUMER CONFIG
+  # group-id = consumer group name
+  # All consumers in the same group share the work
+  # If we run 3 instances of analytics-service,
+  # Kafka distributes partitions among all 3
+  # so each event is processed exactly once
+  #
+  # auto-offset-reset: earliest = if this consumer
+  # has never connected before, start reading from
+  # the very beginning of the topic history
+  # ═══════════════════════════════════════════════
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: analytics-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.devflow.marketplace.dto,com.devflow.analytics.dto"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.devflow.analytics.dto.OrderEventDto
+
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.devflow: INFO
+    org.springframework.kafka: INFO
+    org.springframework.data.redis: DEBUG

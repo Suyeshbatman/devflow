@@ -1,0 +1,47 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: ai-service
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: devflow123
+      timeout: 2000ms
+
+  threads:
+    virtual:
+      enabled: true
+
+# ═══════════════════════════════════════════════
+# CLAUDE API CONFIG
+# api-key: get from https://console.anthropic.com
+# model: claude-sonnet-4-20250514 is fast + capable
+# max-tokens: maximum response length
+# base-url: Claude API endpoint
+# ═══════════════════════════════════════════════
+claude:
+  api-key: YOUR_CLAUDE_API_KEY_HERE
+  model: claude-sonnet-4-20250514
+  max-tokens: 2000
+  base-url: https://api.anthropic.com
+
+# Cache TTL for AI responses (seconds)
+# 3600 = 1 hour
+ai:
+  cache:
+    ttl: 3600
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.devflow: INFO
+    org.springframework.web.reactive: DEBUG

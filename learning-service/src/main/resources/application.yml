@@ -1,0 +1,45 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: learning-service
+
+  # ═══════════════════════════════════════════════
+  # MONGODB CONFIG
+  # Unlike PostgreSQL which needs a JDBC URL,
+  # MongoDB uses its own connection string format:
+  # mongodb://username:password@host:port/database
+  #
+  # auto-index-creation: true = MongoDB automatically
+  # creates indexes defined on @Document classes
+  # In production set to false and manage indexes manually
+  # ═══════════════════════════════════════════════
+  data:
+    mongodb:
+      uri: mongodb://devflow:devflow123@localhost:27017/devflow_learning?authSource=admin
+      auto-index-creation: true
+
+  threads:
+    virtual:
+      enabled: true
+
+# AI service URL — learning service calls it
+# to generate quizzes from course content
+ai:
+  service:
+    url: http://localhost:8084
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.devflow: INFO
+    org.springframework.data.mongodb: DEBUG

@@ -1,0 +1,52 @@
+### ═══════════════════════════════════════════
+### STEP 1: Health check
+### ═══════════════════════════════════════════
+GET http://localhost:8084/api/ai/health
+
+### ═══════════════════════════════════════════
+### STEP 2: Code review
+### ═══════════════════════════════════════════
+POST http://localhost:8084/api/ai/code-review
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "code": "public int divide(int a, int b) { return a / b; }",
+  "language": "java",
+  "context": "Utility method for division"
+}
+
+### ═══════════════════════════════════════════
+### STEP 3: Generate tests
+### ═══════════════════════════════════════════
+POST http://localhost:8084/api/ai/generate-tests
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "code": "public int divide(int a, int b) { return a / b; }",
+  "language": "java",
+  "testFramework": "JUnit 5 with Mockito"
+}
+
+### ═══════════════════════════════════════════
+### STEP 4: Parse a resume
+### ═══════════════════════════════════════════
+POST http://localhost:8084/api/ai/parse-resume
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "resumeText": "John Doe - Senior Java Developer. 7 years experience with Spring Boot, Kafka, AWS, PostgreSQL, React, Docker, Kubernetes. Currently at TechCorp as Lead Engineer."
+}
+
+### ═══════════════════════════════════════════
+### STEP 5: AI Chat
+### ═══════════════════════════════════════════
+POST http://localhost:8084/api/ai/chat
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "message": "What is the difference between Kafka and RabbitMQ?"
+}

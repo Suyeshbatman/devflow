@@ -1,0 +1,111 @@
+server:
+  port: 8079
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # ═════════════════════════════════════════
+      # ROUTES — one per microservice
+      # id          = unique name for this route
+      # uri         = where to forward the request
+      # predicates  = which URLs match this route
+      # filters     = transformations to apply
+      # ═════════════════════════════════════════
+      routes:
+
+        # ── User Service ──────────────────────
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**,/api/users/**
+          filters:
+            - StripPrefix=0
+
+        # ── Marketplace Service ───────────────
+        - id: marketplace-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/products/**,/api/orders/**
+          filters:
+            - StripPrefix=0
+
+        # ── Analytics Service ─────────────────
+        - id: analytics-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/analytics/**
+          filters:
+            - StripPrefix=0
+
+        # ── AI Service ────────────────────────
+        - id: ai-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - StripPrefix=0
+
+        # ── Learning Service ──────────────────
+        - id: learning-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/courses/**,/api/quizzes/**
+          filters:
+            - StripPrefix=0
+
+        # ── Notification Service ──────────────
+        - id: notification-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=0
+
+      # ═════════════════════════════════════════
+      # GLOBAL CORS
+      # Allows React (3000) and Angular (4200)
+      # to call the gateway from the browser
+      # Without this browsers block cross-origin
+      # requests for security
+      # ═════════════════════════════════════════
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+# ═══════════════════════════════════════════════
+# JWT CONFIG
+# Must match user-service exactly
+# Gateway validates tokens using same secret
+# ═══════════════════════════════════════════════
+jwt:
+  secret: devflow-super-secret-key-for-jwt-signing-must-be-long-enough
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.devflow: INFO
+    org.springframework.cloud.gateway: INFO

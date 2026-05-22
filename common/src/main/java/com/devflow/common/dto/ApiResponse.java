@@ -1,6 +1,6 @@
 package com.devflow.common.dto;
 
-import com.fasterxml.jsckson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 // @AllArgsConstructor = generates constructor with all fields
 // @JsonInclude = don't include null fields in JSON output (cleaner responses)
 
-@data
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -59,7 +59,7 @@ public class ApiResponse<T>{
 
     public static <T> ApiResponse<T> error (String message){
         return ApiResponse.<T>builder()
-                .success(flase)
+                .success(false)
                 .message(message)
                 .build();
     }

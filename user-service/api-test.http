@@ -1,0 +1,73 @@
+### ═══════════════════════════════════════
+### TEST 1: Register a new user
+### Expected: 201 Created + JWT token
+### ═══════════════════════════════════════
+POST http://localhost:8081/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@devflow.com",
+  "password": "securepass123"
+}
+
+### ═══════════════════════════════════════
+### TEST 2: Login with that user
+### Expected: 200 OK + JWT token
+### ═══════════════════════════════════════
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@devflow.com",
+  "password": "securepass123"
+}
+
+### ═══════════════════════════════════════
+### TEST 3: Login with WRONG password
+### Expected: 401 Unauthorized
+### ═══════════════════════════════════════
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@devflow.com",
+  "password": "wrongpassword"
+}
+
+### ═══════════════════════════════════════
+### TEST 4: Register with invalid data
+### Expected: 400 Bad Request + field errors
+### ═══════════════════════════════════════
+POST http://localhost:8081/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "lastName": "Doe",
+  "email": "not-an-email",
+  "password": "short"
+}
+
+### ═══════════════════════════════════════
+### TEST 5: Register duplicate email
+### Expected: 409 Conflict
+### ═══════════════════════════════════════
+POST http://localhost:8081/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "email": "john@devflow.com",
+  "password": "securepass123"
+}
+
+### ═══════════════════════════════════════
+### TEST 6: Get current user profile
+### Paste your token from TEST 1 or 2 below
+### Expected: 200 OK + user profile
+### ═══════════════════════════════════════
+GET http://localhost:8081/api/auth/me
+Authorization: Bearer PASTE_YOUR_TOKEN_HERE

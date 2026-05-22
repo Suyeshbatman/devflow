@@ -1,0 +1,38 @@
+### ═══════════════════════════════════════════
+### STEP 1: Place an order (triggers notification)
+### ═══════════════════════════════════════════
+POST http://localhost:8082/api/orders
+Content-Type: application/json
+X-User-Email: john@devflow.com
+
+{
+  "productId": 1
+}
+
+### ═══════════════════════════════════════════
+### STEP 2: Get notifications for john
+### Should show ORDER_CONFIRMED notification
+### ═══════════════════════════════════════════
+GET http://localhost:8086/api/notifications
+X-User-Email: john@devflow.com
+
+### ═══════════════════════════════════════════
+### STEP 3: Get unread count
+### Should show { "count": 1 }
+### ═══════════════════════════════════════════
+GET http://localhost:8086/api/notifications/unread-count
+X-User-Email: john@devflow.com
+
+### ═══════════════════════════════════════════
+### STEP 4: Mark notification as read
+### Paste notification id from STEP 2 response
+### ═══════════════════════════════════════════
+PUT http://localhost:8086/api/notifications/PASTE_ID_HERE/read
+X-User-Email: john@devflow.com
+
+### ═══════════════════════════════════════════
+### STEP 5: Check unread count again
+### Should now show { "count": 0 }
+### ═══════════════════════════════════════════
+GET http://localhost:8086/api/notifications/unread-count
+X-User-Email: john@devflow.com

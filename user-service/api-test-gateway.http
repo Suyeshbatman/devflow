@@ -1,0 +1,123 @@
+### ═══════════════════════════════════════════
+### STEP 1: Register through gateway
+### Hits port 8079 → routed to user-service 8081
+### Expected: 201 Created + JWT token
+### ═══════════════════════════════════════════
+POST http://localhost:8079/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Gateway",
+  "lastName": "Test",
+  "email": "gateway@devflow.com",
+  "password": "securepass123"
+}
+
+### ═══════════════════════════════════════════
+### STEP 2: Login through gateway
+### Expected: 200 OK + JWT token
+### Copy the accessToken from the response
+### ═══════════════════════════════════════════
+POST http://localhost:8079/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gateway@devflow.com",
+  "password": "securepass123"
+}
+
+### ═══════════════════════════════════════════
+### STEP 3: Access protected endpoint WITHOUT token
+### Gateway AuthFilter should reject this
+### Expected: 401 Unauthorized
+### ═══════════════════════════════════════════
+GET http://localhost:8079/api/auth/me
+
+### ═══════════════════════════════════════════
+### STEP 4: Access protected endpoint WITH token
+### Paste accessToken from STEP 2 below
+### Expected: 200 OK + user profile
+### ═══════════════════════════════════════════
+GET http://localhost:8079/api/auth/me
+Authorization: Bearer PASTE_TOKEN_HERE
+
+### ═══════════════════════════════════════════
+### STEP 5: Get products through gateway
+### Gateway routes to marketplace-service 8082
+### Expected: 200 OK + products list
+### ═══════════════════════════════════════════
+GET http://localhost:8079/api/products
+Authorization: Bearer PASTE_TOKEN_HERE
+
+### ═══════════════════════════════════════════
+### STEP 6: Create product through gateway
+### Expected: 201 Created + product
+### ═══════════════════════════════════════════
+POST http://localhost:8079/api/products
+Content-Type: application/json
+Authorization: Bearer PASTE_TOKEN_HERE
+
+{
+  "name": "Gateway Test Product",
+  "description": "Created through the API gateway",
+  "price": 29.99,
+  "category": "API_TOOL"
+}
+
+### ═══════════════════════════════════════════
+### STEP 7: Get analytics through gateway
+### Gateway routes to analytics-service 8083
+### Expected: 200 OK + metrics summary
+### ═══════════════════════════════════════════
+GET http://localhost:8079/api/analytics/summary
+Authorization: Bearer PASTE_TOKEN_HERE
+
+### ═══════════════════════════════════════════
+### STEP 8: Get courses through gateway
+### Gateway routes to learning-service 8085
+### Expected: 200 OK + courses list
+### ═══════════════════════════════════════════
+GET http://localhost:8079/api/courses
+Authorization: Bearer PASTE_TOKEN_HERE
+
+### ═══════════════════════════════════════════
+### STEP 9: AI chat through gateway
+### Gateway routes to ai-service 8084
+### Expected: 200 OK + AI response
+### ═══════════════════════════════════════════
+POST http://localhost:8079/api/ai/chat
+Content-Type: application/json
+Authorization: Bearer PASTE_TOKEN_HERE
+
+{
+  "message": "What is the difference between REST and GraphQL?"
+}
+
+### ═══════════════════════════════════════════
+### STEP 10: Get notifications through gateway
+### Gateway routes to notification-service 8086
+### Expected: 200 OK + notifications list
+### ═══════════════════════════════════════════
+GET http://localhost:8079/api/notifications
+Authorization: Bearer PASTE_TOKEN_HERE
+
+### ═══════════════════════════════════════════
+### STEP 11: Place order through gateway
+### Triggers Kafka event → analytics + notifications
+### Expected: 201 Created + order
+### ═══════════════════════════════════════════
+POST http://localhost:8079/api/orders
+Content-Type: application/json
+Authorization: Bearer PASTE_TOKEN_HERE
+
+{
+  "productId": 1
+}
+
+### ═══════════════════════════════════════════
+### STEP 12: Verify analytics updated after order
+### totalOrders should have incremented
+### Expected: 200 OK + updated metrics
+### ═══════════════════════════════════════════
+GET http://localhost:8079/api/analytics/summary
+Authorization: Bearer PASTE_TOKEN_HERE
