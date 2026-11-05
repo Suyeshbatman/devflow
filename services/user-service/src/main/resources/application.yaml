@@ -1,5 +1,25 @@
 spring:
   application:
     name: user-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/devflow_users}
+    username: ${DB_USERNAME:devflow}
+    password: ${DB_PASSWORD:devflow_dev_pw}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
 server:
   port: 8081
+
+management:
+  endpoint:
+    health:
+      show-details: always
