@@ -1,0 +1,44 @@
+# ============================================
+# .gitignore — files Git should NEVER track
+# ============================================
+
+# ---------- Java / Maven ----------
+# "target/" is where Maven puts compiled code and built .jar files.
+# It's regenerated on every build, so saving it would just bloat the repo.
+target/
+# Compiled Java bytecode files (produced by javac).
+*.class
+# Packaged Java applications. Built by tools, never committed.
+*.jar
+# Java crash log files, if the JVM ever crashes.
+hs_err_pid*
+
+# ---------- IntelliJ ----------
+# IntelliJ's personal settings folder (window layout, local paths). Specific to YOUR machine.
+.idea/
+# IntelliJ module files, also machine-specific.
+*.iml
+
+# ---------- Node / React (used in Phase 6) ----------
+# Downloaded JavaScript packages. Can be hundreds of MB; reinstalled with "npm install".
+node_modules/
+# Production build output of the React app.
+dist/
+build/
+
+# ---------- Secrets ----------
+# ".env" files hold passwords and API keys. NEVER commit these:
+# anything pushed to GitHub can be found by anyone (and by bots that scan for keys).
+.env
+*.env
+
+# ---------- Logs ----------
+# Log files written while apps run. Useful locally, useless in history.
+*.log
+logs/
+
+# ---------- Operating system junk ----------
+# Windows thumbnail cache.
+Thumbs.db
+# macOS folder metadata (in case you ever use a Mac).
+.DS_Store
