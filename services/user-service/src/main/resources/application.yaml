@@ -23,3 +23,16 @@ management:
   endpoint:
     health:
       show-details: always
+
+devflow:
+  jwt:
+    # The secret key for signing tokens: Base64-encoded, at least 32 bytes.
+    # Like the DB password: use the JWT_SECRET environment variable if it exists, otherwise this dev default.
+    # ⚠️ Anyone who has this key can create valid tokens for ANY user (including ADMIN).
+    # This default is for local development only. On real servers we'll ALWAYS
+    # set JWT_SECRET from a secret store (Phase 7).
+    secret: ${JWT_SECRET:z5TYr6YODmBBRr6G2juMzMFHNcAp9PPct3xy9LRiPd8=}
+    # How long a token stays valid. Spring understands units like 30m, 1h, 7d.
+    expiration: ${JWT_EXPIRATION:1h}
+    # Who issued the token. Written into tokens and checked when verifying them.
+    issuer: devflow-user-service

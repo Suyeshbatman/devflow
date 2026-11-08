@@ -14,7 +14,7 @@ public record UserResponse(
         boolean enabled,
         Instant created_at
 ) {
-    // A static factory method, converts an entity intp a DTO
+    // A static factory method, converts an entity into a DTO
     public static UserResponse from(User user){
         return new UserResponse(
                 user.getId(),
