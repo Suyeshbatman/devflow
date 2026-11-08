@@ -1,0 +1,41 @@
+spring:
+  application:
+    # The service's name in logs and (later) in monitoring.
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          # The routing table. Each "-" starts one route, checked TOP TO BOTTOM; the first match wins.
+          routes:
+            # Route 1: authentication endpoints → User Service
+            - id: user-service-auth
+              # Where to forward. ${VAR:default} again, so in Docker/Kubernetes (Phase 7)
+              # we'll set USER_SERVICE_URL to the container's address instead of localhost.
+              uri: ${USER_SERVICE_URL:http://localhost:8081}
+              # The condition: path matches /api/auth/ followed by anything.
+              #   "**" = any number of path segments (/api/auth/login, /api/auth/a/b/c...)
+              predicates:
+                - Path=/api/auth/**
+            # Route 2: user endpoints → User Service
+            - id: user-service-users
+              uri: ${USER_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/api/users/**
+            # Phase 2 will add: - id: marketplace-service ... Path=/api/products/**
+
+server:
+  # The gateway takes the "front door" port. Clients will ONLY use 8080 from now on.
+  port: 8088
+
+devflow:
+  jwt:
+    # MUST be identical to the User Service's secret, or every token will be rejected.
+    secret: ${JWT_SECRET:z5TYr6YODmBBRr6G2juMzMFHNcAp9PPct3xy9LRiPd8=}
+    # Must match the issuer the User Service writes into tokens.
+    issuer: devflow-user-service
+
+management:
+  endpoint:
+    health:
+      show-details: always
