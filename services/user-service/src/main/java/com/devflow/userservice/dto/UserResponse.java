@@ -12,7 +12,8 @@ public record UserResponse(
         String fullName,
         Role role,
         boolean enabled,
-        Instant created_at
+        Instant created_at,
+        Instant lastLoginAt      //null if the user has never logged in
 ) {
     // A static factory method, converts an entity into a DTO
     public static UserResponse from(User user){
@@ -22,7 +23,8 @@ public record UserResponse(
                 user.getFullName(),
                 user.getRole(),
                 user.isEnabled(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getLastLoginAt()
         );
     }
 }

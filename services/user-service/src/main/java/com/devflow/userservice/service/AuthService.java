@@ -28,7 +28,7 @@ public class AuthService {
         this.jwtProperties = jwtProperties;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResponse login(LoginRequest request){
         String email = request.email().trim().toLowerCase(Locale.ROOT);
 
@@ -41,6 +41,8 @@ public class AuthService {
         if(!user.isEnabled()){
             throw new InvalidCredentialsException();
         }
+
+        user.recordSuccessfulLogin();
 
         String token = tokenService.generateToken(user);
         return new LoginResponse(token, "Bearer", jwtProperties.expiration().toSeconds());

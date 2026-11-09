@@ -35,6 +35,8 @@ public class User {
     private Instant createdAt;
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+    @Column(name = "last_login_at")
+    private Instant lastLoginAt;
 
     //-----------Constructors------------
     protected User(){
@@ -95,6 +97,8 @@ public class User {
         return updatedAt;
     }
 
+    public Instant getLastLoginAt() { return lastLoginAt; }
+
     //----------Setters-----------
 
     public void setEmail(String email) {
@@ -115,5 +119,9 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void recordSuccessfulLogin() {
+        this.lastLoginAt = Instant.now();
     }
 }
