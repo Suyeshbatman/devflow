@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: marketplace-service
+
+  datasource:
+    # ITS OWN database: devflow_marketplace (same server, port 5433).
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/devflow_marketplace}
+    username: ${DB_USERNAME:devflow}
+    password: ${DB_PASSWORD:devflow_dev_pw}
+
+  jpa:
+    hibernate:
+      # Flyway owns the schema from day one; Hibernate only checks it.
+      ddl-auto: validate
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  # Port plan: gateway 8088, user-service 8081, marketplace 8082.
+  port: 8082
+
+devflow:
+  jwt:
+    # The SAME secret as user-service and the gateway. A different value = every token rejected.
+    secret: ${JWT_SECRET:z5TYr6YODmBBRr6G2juMzMFHNcAp9PPct3xy9LRiPd8=}
+    # Tokens are issued by user-service, so that's the issuer we expect.
+    issuer: devflow-user-service
+
+management:
+  endpoint:
+    health:
+      show-details: always

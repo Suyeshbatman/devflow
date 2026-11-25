@@ -22,7 +22,13 @@ spring:
               uri: ${USER_SERVICE_URL:http://localhost:8081}
               predicates:
                 - Path=/api/users/**
-            # Phase 2 will add: - id: marketplace-service ... Path=/api/products/**
+
+            # Route 3: marketplace endpoints -> Marketplace Service
+            - id: marketplace-service
+              uri: ${MARKETPLACE_SERVICE_URL:http://localhost:8082}
+              predicates:
+                # Several paths in ONE predicate, separated by commas.
+                - Path=/api/products/**,/api/orders/**
 
 server:
   # The gateway takes the "front door" port. Clients will ONLY use 8080 from now on.

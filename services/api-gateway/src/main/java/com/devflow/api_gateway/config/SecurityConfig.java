@@ -19,6 +19,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         //   login and registration pass through WITHOUT a token (HttpMethod.POST is a CONSTANT).
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/users/register").permitAll()
+                        // [METHOD CALL] .requestMatchers(...).permitAll(): browsing products needs no login.
+                        //   It must match the marketplace's own rule, or the gateway would block requests the service allows.
+                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
                         // The gateway's own health endpoint is public.
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         // Spring's internal error page is public, so errors aren't turned into 401s.
