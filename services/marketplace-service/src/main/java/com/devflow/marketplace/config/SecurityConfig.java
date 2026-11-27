@@ -28,6 +28,9 @@ public class SecurityConfig {
                         // Browsing the catalog is PUBLIC: anyone can look at products (like any online store).
                         //   Both patterns are listed so "/api/products" itself is clearly included.
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                        // [METHOD CALL] .hasAnyRole(...): creating a product requires DEVELOPER or ADMIN.
+                        //   A VIEWER's token is valid (authenticated) but lacks the role → 403.
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasAnyRole("DEVELOPER", "ADMIN")
                         // Health checks are public.
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         // Spring's error page is public, so 404/400 errors aren't turned into 401.

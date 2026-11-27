@@ -1,0 +1,6 @@
+{
+  "name": "Git Hooks Pro",
+  "description": "Pre-configured git hooks for linting, tests and commit message checks.",
+  "category": "CLI_TOOL",
+  "price": 19.99
+}
