@@ -17,6 +17,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # Fixes the N+1 problem for lazy collections: when the items of one order are needed,
+        # Hibernate loads the items for up to 50 orders in ONE query (WHERE order_id IN (...)).
+        default_batch_fetch_size: 50
 
   data:
     web:

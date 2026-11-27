@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,4 +25,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     // [METHOD] One product, only if it has this status: WHERE id = ? AND status = ?
     //   Used to treat ARCHIVED products as "not found".
     Optional<Product> findByIdAndStatus(UUID id, ProductStatus status);
+
+    // [METHOD] (declared) Several products in ONE query: WHERE id IN (?, ?, ...) AND status = ?
+    //   "IdIn" + a Collection PARAMETER = an SQL "IN" list.
+    //   Collection is an INTERFACE that both List and Set implement, so either can be passed in.
+    List<Product> findByIdInAndStatus(Collection<UUID> ids, ProductStatus status);
 }

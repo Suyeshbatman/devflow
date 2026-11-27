@@ -42,3 +42,7 @@ logs/
 Thumbs.db
 # macOS folder metadata (in case you ever use a Mac).
 .DS_Store
+
+
+# Temporary request bodies generated while testing
+tmp-*.json
